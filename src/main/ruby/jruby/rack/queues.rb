@@ -93,7 +93,7 @@ module JRuby
         end
 
         def setup_rails_dispatcher_prepare_hook
-          if defined?(::Rails)
+          if defined?(::Rails) && !Object.const_defined? 'JRUBY_RACK_NO_RAILS_PREPARE_HOOK
             begin
               require 'dispatcher'
               dispatcher = defined?(ActionController::Dispatcher) &&
