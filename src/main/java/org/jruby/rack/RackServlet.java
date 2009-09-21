@@ -6,8 +6,6 @@
 
 package org.jruby.rack;
 
-import org.jruby.rack.servlet.DefaultServletDispatcher;
-import org.jruby.rack.servlet.ServletDispatcher;
 import java.io.IOException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -16,6 +14,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.jruby.rack.servlet.DefaultServletDispatcher;
+import org.jruby.rack.servlet.ServletDispatcher;
+import org.jruby.rack.servlet.ServletRackContext;
 
 /**
  *
@@ -35,13 +37,20 @@ public class RackServlet extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) {
-        this.dispatcher = new DefaultServletDispatcher(config.getServletContext());
+        if (dispatcher == null) {
+            dispatcher = new DefaultServletDispatcher(new ServletRackContext(config.getServletContext()));
+        }
+    }
+
+    @Override
+    public void service(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException {
+        dispatcher.process(request, response);
     }
 
     @Override
     public void service(ServletRequest request, ServletResponse response)
         throws ServletException, IOException {
-        dispatcher.process((HttpServletRequest) request, (HttpServletResponse) response);
+        service((HttpServletRequest) request, (HttpServletResponse) response);
     }
-
 }

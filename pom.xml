@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.jruby.rack</groupId>
   <artifactId>jruby-rack</artifactId>
-  <version>0.9.5-SNAPSHOT</version>
+  <version>0.9.6-SNAPSHOT</version>
   <name>JRuby-Rack</name>
   <url>http://jruby-rack.kenai.com/</url>
   <description>
@@ -142,7 +142,9 @@
       <extension>
         <groupId>org.apache.maven.wagon</groupId>
         <artifactId>wagon-webdav</artifactId>
+        <version>1.0-beta-2</version>
       </extension>
     </extensions>
   </build>
 </project>
+

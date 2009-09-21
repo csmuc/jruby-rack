@@ -53,6 +53,26 @@ describe JRuby::Rack::Response do
     @response.write_headers(@servlet_response)
   end
 
+  it "should write headers whose value contains newlines as multiple addHeader invocations" do
+    @headers.should_receive(:each).and_return do |block|
+      block.call "Set-Cookie",  "cookie1\ncookie2"
+    end
+    @servlet_response.should_receive(:addHeader).with("Set-Cookie", "cookie1")
+    @servlet_response.should_receive(:addHeader).with("Set-Cookie", "cookie2")
+    @response.write_headers(@servlet_response)
+  end
+
+  it "should write headers whose value contains newlines as multiple addHeader invocations when string doesn't respond to #each" do
+    @headers.should_receive(:each).and_return do |block|
+      s = "cookie1\ncookie2"
+      class << s; undef_method :each; end if s.respond_to?(:each)
+      block.call "Set-Cookie", s
+    end
+    @servlet_response.should_receive(:addHeader).with("Set-Cookie", "cookie1")
+    @servlet_response.should_receive(:addHeader).with("Set-Cookie", "cookie2")
+    @response.write_headers(@servlet_response)
+  end
+
   it "should call addIntHeader with integer value" do
     @headers.should_receive(:each).and_return do |block|
       block.call "Expires", 0
@@ -94,5 +114,24 @@ describe JRuby::Rack::Response do
     @headers.should_receive(:[]).with("Forward").and_return(proc {|resp| response = resp})
     @response.respond(@servlet_response)
     response.should == @servlet_response
+  end
+
+  it "#getBody should call close on the body if the body responds to close" do
+    @body.should_receive(:each).ordered.and_yield "hello"
+    @body.should_receive(:close).ordered
+    @response.getBody.should == "hello"
+  end
+
+  it "#write_body should call close on the body if the body responds to close" do
+    @body.should_receive(:each).ordered.and_return do |block|
+      block.call "hello"
+      block.call "there"
+    end
+    @body.should_receive(:close).ordered
+    stream = mock "output stream"
+    @servlet_response.stub!(:getOutputStream).and_return stream
+    stream.should_receive(:write).exactly(2).times
+
+    @response.write_body(@servlet_response)
   end
 end
