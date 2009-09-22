@@ -24,7 +24,8 @@ module JRuby::Rack
     end
 
     def default_layout_class
-      RailsWebInfLayout
+      c = @rack_context.getInitParameter 'rails.layout_class'
+      c.nil? ? RailsWebInfLayout : eval(c)
     end
 
     def load_environment
