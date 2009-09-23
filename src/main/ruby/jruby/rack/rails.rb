@@ -34,7 +34,7 @@ module JRuby::Rack
       require 'dispatcher'
       require 'jruby/rack/rails_ext'
       setup_sessions
-      setup_logger
+      setup_logger unless @rack_context.getInitParameter('rails.keep_logger') == 'true'
     end
 
     # This hook method is called back from within the mechanism installed
